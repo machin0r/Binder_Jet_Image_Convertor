@@ -2,10 +2,10 @@
 GUI and controller for the binder jet convertor program
 '''
 
+from pathlib import Path
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout, QRadioButton, QButtonGroup, QListWidget, QListWidgetItem, QScrollArea
 from PyQt6.QtGui import QIntValidator, QPixmap
 from PyQt6.QtCore import Qt
-from pathlib import Path
 from binder_jet_convertor import StackConvertor
 
 class ImageConverterController:
@@ -39,8 +39,7 @@ class ImageConverterView(QMainWindow):
         super().__init__()
 
         self.init_ui()
-        self.controller = ImageConverterController(self)
-        
+        self.controller = ImageConverterController(self)        
 
     def init_ui(self):
         '''GUI layout'''
@@ -58,43 +57,50 @@ class ImageConverterView(QMainWindow):
         directory_button = QPushButton('Select Directory')
         directory_button.clicked.connect(self.select_directory)
 
+        # Buttons to autofill presets for Xaar and Meteor systems
+        self.preset_label = QLabel('Presets')
+        xaar_preset_button = QPushButton('Xaar XPM')
+        xaar_preset_button.clicked.connect(self.load_xaar_presets)
+        meteor_preset_button = QPushButton('Meteor HDC')
+        meteor_preset_button.clicked.connect(self.load_meteor_presets)
+
         self.name_format_label = QLabel('File Name Style:')
         # Radio buttons for selecting layer rename format
         rename_button_layout = QHBoxLayout()
-        layer_radio = QRadioButton('Layer')
-        slice_radio = QRadioButton('Slice')
-        default_rename_radio = QRadioButton('Keep Original Name Style')
-        rename_button_layout.addWidget(layer_radio)
-        rename_button_layout.addWidget(slice_radio)
-        rename_button_layout.addWidget(default_rename_radio)
-        default_rename_radio.setChecked(True)
+        self.layer_radio = QRadioButton('Layer')
+        self.slice_radio = QRadioButton('Slice')
+        self.default_rename_radio = QRadioButton('Keep Original Name Style')
+        rename_button_layout.addWidget(self.layer_radio)
+        rename_button_layout.addWidget(self.slice_radio)
+        rename_button_layout.addWidget(self.default_rename_radio)
+        self.default_rename_radio.setChecked(True)
         # Add radio buttons to their button group
         self.rename_radio_group = QButtonGroup(self)
-        self.rename_radio_group.addButton(layer_radio)
-        self.rename_radio_group.addButton(slice_radio)
-        self.rename_radio_group.addButton(default_rename_radio)
-        self.process_file_rename_style(default_rename_radio)  # Run to set default value
+        self.rename_radio_group.addButton(self.layer_radio)
+        self.rename_radio_group.addButton(self.slice_radio)
+        self.rename_radio_group.addButton(self.default_rename_radio)
+        self.process_file_rename_style(self.default_rename_radio)  # Run to set default value
         self.rename_radio_group.buttonClicked.connect(self.process_file_rename_style)
 
         self.extension_label = QLabel('File Extension:')
         # Radio buttons for selecting file extension
         extension_button_layout = QHBoxLayout()
-        png_radio = QRadioButton('.png')
-        bmp_radio = QRadioButton('.bmp')
-        tif_radio = QRadioButton('.tif')
-        default_extension_radio = QRadioButton('Keep Original Extension')
-        extension_button_layout.addWidget(png_radio)
-        extension_button_layout.addWidget(bmp_radio)
-        extension_button_layout.addWidget(tif_radio)
-        extension_button_layout.addWidget(default_extension_radio)
-        default_extension_radio.setChecked(True)
+        self.png_radio = QRadioButton('.png')
+        self.bmp_radio = QRadioButton('.bmp')
+        self.tif_radio = QRadioButton('.tif')
+        self.default_extension_radio = QRadioButton('Keep Original Extension')
+        extension_button_layout.addWidget(self.png_radio)
+        extension_button_layout.addWidget(self.bmp_radio)
+        extension_button_layout.addWidget(self.tif_radio)
+        extension_button_layout.addWidget(self.default_extension_radio)
+        self.default_extension_radio.setChecked(True)
         # Add radio buttons to their button group
         self.format_radio_group = QButtonGroup(self)
-        self.format_radio_group.addButton(png_radio)
-        self.format_radio_group.addButton(bmp_radio)
-        self.format_radio_group.addButton(tif_radio)
-        self.format_radio_group.addButton(default_extension_radio)
-        self.process_file_extension(default_extension_radio)  # Run to set default value
+        self.format_radio_group.addButton(self.png_radio)
+        self.format_radio_group.addButton(self.bmp_radio)
+        self.format_radio_group.addButton(self.tif_radio)
+        self.format_radio_group.addButton(self.default_extension_radio)
+        self.process_file_extension(self.default_extension_radio)  # Run to set default value
         self.format_radio_group.buttonClicked.connect(self.process_file_extension)
 
         self.resize_label = QLabel('Resize')
@@ -114,23 +120,23 @@ class ImageConverterView(QMainWindow):
         self.bit_depth_label = QLabel('Bit Depth:')
         # Radio buttons for selecting bit depth
         bit_depth_layout = QHBoxLayout()
-        bit_depth_1 = QRadioButton('1')
-        bit_depth_8 = QRadioButton('8')
-        bit_depth_24 = QRadioButton('24')
-        bit_depth_32 = QRadioButton('32')
+        self.bit_depth_1 = QRadioButton('1')
+        self.bit_depth_8 = QRadioButton('8')
+        self.bit_depth_24 = QRadioButton('24')
+        self.bit_depth_32 = QRadioButton('32')
         bit_depth_default = QRadioButton('Keep Original Bit Depth')
-        bit_depth_layout.addWidget(bit_depth_1)
-        bit_depth_layout.addWidget(bit_depth_8)
-        bit_depth_layout.addWidget(bit_depth_24)
-        bit_depth_layout.addWidget(bit_depth_32)
+        bit_depth_layout.addWidget(self.bit_depth_1)
+        bit_depth_layout.addWidget(self.bit_depth_8)
+        bit_depth_layout.addWidget(self.bit_depth_24)
+        bit_depth_layout.addWidget(self.bit_depth_32)
         bit_depth_layout.addWidget(bit_depth_default)
         bit_depth_default.setChecked(True)
         # Add radio buttons to their button group
         self.bit_depth_radio_group = QButtonGroup(self)
-        self.bit_depth_radio_group.addButton(bit_depth_1)
-        self.bit_depth_radio_group.addButton(bit_depth_8)
-        self.bit_depth_radio_group.addButton(bit_depth_24)
-        self.bit_depth_radio_group.addButton(bit_depth_32)
+        self.bit_depth_radio_group.addButton(self.bit_depth_1)
+        self.bit_depth_radio_group.addButton(self.bit_depth_8)
+        self.bit_depth_radio_group.addButton(self.bit_depth_24)
+        self.bit_depth_radio_group.addButton(self.bit_depth_32)
         self.bit_depth_radio_group.addButton(bit_depth_default)
         self.process_bit_depth(bit_depth_default)  # Run to set default value
         self.bit_depth_radio_group.buttonClicked.connect(self.process_bit_depth)
@@ -144,11 +150,15 @@ class ImageConverterView(QMainWindow):
         copies_layout.addWidget(self.copy_number_label)
         copies_layout.addWidget(self.copy_number_entry)
 
+        # Button to run the conversion with the selected settings
         self.convert_button = QPushButton('Convert')
         self.convert_button.clicked.connect(self.process_selections)
 
         layout.addWidget(self.path_label)
         layout.addWidget(directory_button)
+        layout.addWidget(self.preset_label)
+        layout.addWidget(xaar_preset_button)
+        layout.addWidget(meteor_preset_button)
         layout.addWidget(self.name_format_label)
         layout.addLayout(rename_button_layout)
         layout.addWidget(self.extension_label)
@@ -177,7 +187,7 @@ class ImageConverterView(QMainWindow):
         central_widget = QWidget(self)
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
-        
+
 
     def select_directory(self):
         '''Asks ths user to select a directory, and then sets the variable 
@@ -185,7 +195,7 @@ class ImageConverterView(QMainWindow):
         Runs updated_thumbnail_list() to populate the stack display on the right
         of the interface'''
         directory = QFileDialog.getExistingDirectory(self, 'Select Directory')
-        self.selected_directory = directory 
+        self.selected_directory = directory
         self.path_label.setText(f'Path: {directory}')
         self.update_thumbnail_list()
 
@@ -205,7 +215,8 @@ class ImageConverterView(QMainWindow):
             for image_file in image_files:
                 pixmap = QPixmap(str(image_file))
                 thumbnail = QLabel(self)
-                thumbnail.setPixmap(pixmap.scaled(100, 200, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
+                thumbnail.setPixmap(pixmap.scaled(100, 200,
+                                                  aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
 
                 # Create a new widget for each thumbnail and add it to the list widget
                 item = QListWidgetItem(self.thumbnail_list)
@@ -213,11 +224,18 @@ class ImageConverterView(QMainWindow):
                 self.thumbnail_list.addItem(item)
                 self.thumbnail_list.setItemWidget(item, thumbnail)
 
-    def create_thumbnail(self, image_path):
-        pixmap = QPixmap(str(image_path))
-        thumbnail = QLabel(self)
-        thumbnail.setPixmap(pixmap.scaled(150, 150, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
-        return thumbnail
+    def load_xaar_presets(self):
+        '''Automatically selects the correct parameters for the Xaar XPM system'''
+        self.layer_radio.setChecked(True)
+        self.bmp_radio.setChecked(True)
+        self.bit_depth_8.setChecked(True)
+
+    def load_meteor_presets(self):
+        '''Automatically selects the correct parameters for the Meteor HDC system
+        Currently picks 1 bit depth.'''
+        self.layer_radio.setChecked(True)
+        self.tif_radio.setChecked(True)
+        self.bit_depth_1.setChecked(True)
 
     def process_selections(self):
         '''Processes each of the selections in turn, setting the variables to the 
