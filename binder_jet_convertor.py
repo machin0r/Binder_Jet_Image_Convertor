@@ -99,29 +99,25 @@ class ImageConvertor:
 class StackConvertor:
     '''Collects the image stack from the specified location, and then converts
     each in turn by creating an ImageConvertor object
-    Default number of copies is 1, this can be increased for more images'''
+    Default number of copies is 1, this can be increased for more images    
+    '''
 
-    def __init__(self, path: str, file_extension:str, new_file_name_format:str,
+    def __init__(self, path: str, new_file_name_format:str = None,
                  new_file_extension:str = None, x_dim:int = None,
                  y_dim:int = None, bit_depth:int = None, copies:int = 1):
         self.path = Path(path)
-        self.file_extension = file_extension
         self.new_file_name_format = new_file_name_format
         self.new_file_extension = new_file_extension
-        self.copies = copies
         self.x_dim = x_dim
         self.y_dim = y_dim
         self.bit_depth = bit_depth
-
+        self.copies = copies
 
         if not self.path.exists():
             raise FileNotFoundError(f'The specified path does not exist: {self.path}')
 
         if not self.path.is_dir():
             print(f'{self.path} is not a valid directory.')
-
-        if not isinstance(file_extension, str):
-            raise TypeError('File extension must be a string')
 
         if not isinstance(copies, (int)) or copies <= 0:
             raise ValueError('Copies must be a positive, non-zero integer')
@@ -134,13 +130,15 @@ class StackConvertor:
 
         for file_path in self.path.iterdir():
             if file_path.is_file():
-                for copy_number in range(0,self.copies):
+                for copy_number in range(0, self.copies):
                     new_file_name = self.new_file_name_format + '_' + str(layer_number).zfill(5)
                     image_conversion = ImageConvertor(file_path)
                     image_conversion.open_image()
-                    image_conversion.resize(self.x_dim, self.y_dim)
-                    image_conversion.convert_image_depth(self.bit_depth)
+                    if self.x_dim is not None or self.y_dim is not None:
+                        image_conversion.resize(self.x_dim, self.y_dim)
+                    if self.bit_depth is  not None:
+                        image_conversion.convert_image_depth(self.bit_depth)
                     image_conversion.get_new_file_name(new_file_name)
                     image_conversion.get_new_file_extension(self.new_file_extension)
                     image_conversion.save_file()
-                layer_number += 1
+                    layer_number += 1
