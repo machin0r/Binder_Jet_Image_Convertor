@@ -242,11 +242,11 @@ class TestStackConvertor:
     def test_init_with_minimum_args(self):
         stack_convertor = StackConvertor(TEST_IMAGES_DIR)
         assert stack_convertor.path == TEST_IMAGES_DIR
-        assert stack_convertor.new_file_name_format == None
-        assert stack_convertor.new_file_extension == None
-        assert stack_convertor.x_dim == None
-        assert stack_convertor.y_dim == None
-        assert stack_convertor.bit_depth == None
+        assert stack_convertor.new_file_name_format is None
+        assert stack_convertor.new_file_extension is None
+        assert stack_convertor.x_dim is None
+        assert stack_convertor.y_dim is None
+        assert stack_convertor.bit_depth is None
         assert stack_convertor.copies == 1
 
     def test_init_with_all_args(self):
@@ -262,11 +262,11 @@ class TestStackConvertor:
 
     def test_conv_zero_copies(self):
         with pytest.raises(ValueError):
-            stack_convertor = StackConvertor(TEST_IMAGES_DIR, copies = 0)
+            StackConvertor(TEST_IMAGES_DIR, copies = 0)
 
     def test_conv_negative_copies(self):
         with pytest.raises(ValueError):
-            stack_convertor = StackConvertor(TEST_IMAGES_DIR, copies = -1)
+            StackConvertor(TEST_IMAGES_DIR, copies = -1)
 
     def test_single_full_conv(self):
         stack_convertor = StackConvertor(TEST_SINGLE_IMAGE_DIR, 'Layer', '.tiff', 40,
