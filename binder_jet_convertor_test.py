@@ -80,6 +80,24 @@ class TestImageConvertor:
         with pytest.raises(TypeError):
             image_convertor.resize(new_width, new_height)
 
+    def test_resize_invalid_x(self):
+        image_path = TEST_IMAGES_DIR / 'test_image.jpg'
+        image_convertor = ImageConvertor(image_path)
+        image_convertor.open_image()
+        new_width, new_height = -50, 50
+        width, height = image_convertor.image.size
+        with pytest.raises(TypeError):
+            image_convertor.resize(new_width, new_height)
+
+    def test_resize_invalid_y(self):
+        image_path = TEST_IMAGES_DIR / 'test_image.jpg'
+        image_convertor = ImageConvertor(image_path)
+        image_convertor.open_image()
+        new_width, new_height = 50, -50
+        width, height = image_convertor.image.size
+        with pytest.raises(TypeError):
+            image_convertor.resize(new_width, new_height)
+
     def test_resize_default(self):
         image_path = TEST_IMAGES_DIR / 'test_image.jpg'
         image_convertor = ImageConvertor(image_path)
@@ -238,6 +256,11 @@ class TestStackConvertor:
     def test_init_with_invalid_path(self):
         with pytest.raises(FileNotFoundError):
             StackConvertor(Path('nonexistent_path'), '.jpg', 'output_image')
+
+    def test_init_with_file_path(self):
+        file_name = 'test_image.bmp'
+        with pytest.raises(ValueError):
+            StackConvertor(Path(TEST_IMAGES_DIR / file_name), '.jpg', 'output_image')
 
     def test_init_with_minimum_args(self):
         stack_convertor = StackConvertor(TEST_IMAGES_DIR)

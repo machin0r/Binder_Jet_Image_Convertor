@@ -31,6 +31,9 @@ jobs:
     - name: Lint with ruff
       run: |
         python3 -m ruff check .
-    - name: Test with pytest
-      run: |
-        pytest
+    - name: Test with pytest  
+        run: |  
+          coverage run -m pytest -v
+      - name: Generate Coverage Report  
+        run: |  
+          coverage report -m
