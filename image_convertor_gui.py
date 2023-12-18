@@ -2,9 +2,10 @@
 GUI and controller for the binder jet convertor program
 '''
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout, QRadioButton, QButtonGroup
-from PyQt6.QtGui import QIntValidator
-#from pathlib import Path
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout, QRadioButton, QButtonGroup, QListWidget, QListWidgetItem, QScrollArea
+from PyQt6.QtGui import QIntValidator, QPixmap
+from PyQt6.QtCore import Qt
+from pathlib import Path
 from binder_jet_convertor import StackConvertor
 
 class ImageConverterController:
@@ -39,11 +40,12 @@ class ImageConverterView(QMainWindow):
 
         self.init_ui()
         self.controller = ImageConverterController(self)
+        
 
     def init_ui(self):
         '''GUI layout'''
         self.setWindowTitle('Image Converter')
-        self.setGeometry(100, 100, 400, 200)
+        self.setGeometry(100, 100, 700, 500)
 
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
@@ -159,14 +161,63 @@ class ImageConverterView(QMainWindow):
 
         layout.addWidget(self.convert_button)
 
+        # Create a scrollable area for showing the thumbnails of the images
+        thumbnail_layout = QVBoxLayout()
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+        self.thumbnail_list = QListWidget()
+        scroll_area.setWidget(self.thumbnail_list)
+        thumbnail_layout.addWidget(scroll_area)
         self.selected_directory = None
-        central_widget.setLayout(layout)
+
+        central_layout = QHBoxLayout()
+        central_layout.addLayout(layout)
+        central_layout.addLayout(thumbnail_layout)
+
+        central_widget = QWidget(self)
+        central_widget.setLayout(central_layout)
+        self.setCentralWidget(central_widget)
+        
 
     def select_directory(self):
         '''Asks ths user to select a directory, and then sets the variable 
-        self.selected_directory the chosen string'''
+        self.selected_directory the chosen string
+        Runs updated_thumbnail_list() to populate the stack display on the right
+        of the interface'''
         directory = QFileDialog.getExistingDirectory(self, 'Select Directory')
-        self.selected_directory = directory
+        self.selected_directory = directory 
+        self.path_label.setText(f'Path: {directory}')
+        self.update_thumbnail_list()
+
+    def update_thumbnail_list(self):
+        '''Updates the list of thumbnails from the selected folder,
+        accepts png, bmp, tif, tiff, jpg, and jpeg images'''
+        self.thumbnail_list.clear()
+
+        if self.selected_directory:
+            image_files = list(Path(self.selected_directory).glob('*.png')) + \
+                            list(Path(self.selected_directory).glob('*.bmp')) + \
+                            list(Path(self.selected_directory).glob('*.tif')) + \
+                            list(Path(self.selected_directory).glob('*.tiff')) + \
+                            list(Path(self.selected_directory).glob('*.jpg')) + \
+                            list(Path(self.selected_directory).glob('*.jpeg'))
+
+            for image_file in image_files:
+                pixmap = QPixmap(str(image_file))
+                thumbnail = QLabel(self)
+                thumbnail.setPixmap(pixmap.scaled(100, 200, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
+
+                # Create a new widget for each thumbnail and add it to the list widget
+                item = QListWidgetItem(self.thumbnail_list)
+                item.setSizeHint(thumbnail.sizeHint())
+                self.thumbnail_list.addItem(item)
+                self.thumbnail_list.setItemWidget(item, thumbnail)
+
+    def create_thumbnail(self, image_path):
+        pixmap = QPixmap(str(image_path))
+        thumbnail = QLabel(self)
+        thumbnail.setPixmap(pixmap.scaled(150, 150, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
+        return thumbnail
 
     def process_selections(self):
         '''Processes each of the selections in turn, setting the variables to the 
