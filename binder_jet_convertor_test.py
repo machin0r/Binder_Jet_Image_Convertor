@@ -253,6 +253,15 @@ class TestStackConvertor:
         stack_convertor = StackConvertor(TEST_IMAGES_DIR, '.tiff', 'output_image')
         assert stack_convertor.path == TEST_IMAGES_DIR
 
+    def test_just_path(self):
+        stack_convertor = StackConvertor(TEST_SINGLE_IMAGE_DIR)
+        stack_convertor.convert_image_stack()
+        expected_name = "test_image.png"
+        expected_output_path = TEST_IMAGES_DIR.parent.parent / 'output' / expected_name
+        assert expected_output_path.is_file()
+        os.remove(expected_output_path)
+
+
     def test_init_with_invalid_path(self):
         with pytest.raises(FileNotFoundError):
             StackConvertor(Path('nonexistent_path'), '.jpg', 'output_image')
