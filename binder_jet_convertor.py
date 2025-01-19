@@ -131,7 +131,10 @@ class StackConvertor:
         for file_path in self.path.iterdir():
             if file_path.is_file():
                 for copy_number in range(0, self.copies):
-                    new_file_name = self.new_file_name_format + '_' + str(layer_number).zfill(5)
+                    if self.new_file_name_format is not None:
+                        new_file_name = self.new_file_name_format + '_' + str(layer_number).zfill(5)
+                    else:
+                        new_file_name = None
                     image_conversion = ImageConvertor(file_path)
                     image_conversion.open_image()
                     if self.x_dim is not None or self.y_dim is not None:
