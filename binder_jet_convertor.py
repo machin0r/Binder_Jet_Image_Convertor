@@ -135,9 +135,7 @@ class StackConvertor:
         self.copies = copies
 
         if not self.path.exists():
-            raise FileNotFoundError(
-                f'The specified path does not exist: {
-                    self.path}')
+            raise FileNotFoundError(f'The specified path does not exist: {self.path}')
 
         if not self.path.is_dir():
             raise ValueError(f'{self.path} is not a valid directory.')
