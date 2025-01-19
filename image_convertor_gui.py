@@ -1,6 +1,7 @@
-'''
+
+"""
 GUI and controller for the binder jet convertor program
-'''
+"""
 
 from pathlib import Path
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout, QRadioButton, QButtonGroup, QListWidget, QListWidgetItem, QScrollArea
@@ -9,14 +10,18 @@ from PyQt6.QtCore import Qt
 from binder_jet_convertor import StackConvertor
 
 class ImageConverterController:
-    '''Controller that passes information between the view and model for the 
-    image conversion'''
+    """
+    Controller that passes information between the view and model for the 
+    image conversion
+    """
     def __init__(self, view):
         self.view = view
 
     def convert_images(self):
-        '''Passes the variables that are set in the view through to the 
-        model function to start converting images'''
+        """
+        Passes the variables that are set in the view through to the 
+        model function to start converting images
+        """
         path = self.view.selected_directory
         rename_file_style = self.view.rename_style
         new_file_extension = self.view.file_extension
@@ -32,9 +37,11 @@ class ImageConverterController:
         stack_converter.convert_image_stack()
 
 class ImageConverterView(QMainWindow):
-    '''PyQt GUI class for displaying the main conversion window
+    """
+    PyQt GUI class for displaying the main conversion window
     Stores the entered user information, and allows the user to change the
-    directory and converstion settings'''
+    directory and conversion settings
+    """
     def __init__(self):
         super().__init__()
 
@@ -42,7 +49,9 @@ class ImageConverterView(QMainWindow):
         self.controller = ImageConverterController(self)        
 
     def init_ui(self):
-        '''GUI layout'''
+        """
+        GUI layout
+        """
         self.setWindowTitle('Image Converter')
         self.setGeometry(100, 100, 700, 500)
 
@@ -59,10 +68,10 @@ class ImageConverterView(QMainWindow):
 
         # Buttons to autofill presets for Xaar and Meteor systems
         self.preset_label = QLabel('Presets')
-        xaar_preset_button = QPushButton('Xaar XPM')
-        xaar_preset_button.clicked.connect(self.load_xaar_presets)
-        meteor_preset_button = QPushButton('Meteor HDC')
-        meteor_preset_button.clicked.connect(self.load_meteor_presets)
+        self.xaar_preset_button = QPushButton('Xaar XPM')
+        self.xaar_preset_button.clicked.connect(self.load_xaar_presets)
+        self.meteor_preset_button = QPushButton('Meteor HDC')
+        self.meteor_preset_button.clicked.connect(self.load_meteor_presets)
 
         self.name_format_label = QLabel('File Name Style:')
         # Radio buttons for selecting layer rename format
@@ -157,8 +166,8 @@ class ImageConverterView(QMainWindow):
         layout.addWidget(self.path_label)
         layout.addWidget(directory_button)
         layout.addWidget(self.preset_label)
-        layout.addWidget(xaar_preset_button)
-        layout.addWidget(meteor_preset_button)
+        layout.addWidget(self.xaar_preset_button)
+        layout.addWidget(self.meteor_preset_button)
         layout.addWidget(self.name_format_label)
         layout.addLayout(rename_button_layout)
         layout.addWidget(self.extension_label)
@@ -190,18 +199,22 @@ class ImageConverterView(QMainWindow):
 
 
     def select_directory(self):
-        '''Asks ths user to select a directory, and then sets the variable 
+        """
+        Asks ths user to select a directory, and then sets the variable 
         self.selected_directory the chosen string
         Runs updated_thumbnail_list() to populate the stack display on the right
-        of the interface'''
+        of the interface
+        """
         directory = QFileDialog.getExistingDirectory(self, 'Select Directory')
         self.selected_directory = directory
         self.path_label.setText(f'Path: {directory}')
         self.update_thumbnail_list()
 
     def update_thumbnail_list(self):
-        '''Updates the list of thumbnails from the selected folder,
-        accepts png, bmp, tif, tiff, jpg, and jpeg images'''
+        """
+        Updates the list of thumbnails from the selected folder,
+        accepts png, bmp, tif, tiff, jpg, and jpeg images
+        """
         self.thumbnail_list.clear()
 
         if self.selected_directory:
@@ -225,21 +238,27 @@ class ImageConverterView(QMainWindow):
                 self.thumbnail_list.setItemWidget(item, thumbnail)
 
     def load_xaar_presets(self):
-        '''Automatically selects the correct parameters for the Xaar XPM system'''
+        """
+        Automatically selects the correct parameters for the Xaar XPM system
+        """
         self.layer_radio.setChecked(True)
         self.bmp_radio.setChecked(True)
         self.bit_depth_8.setChecked(True)
 
     def load_meteor_presets(self):
-        '''Automatically selects the correct parameters for the Meteor HDC system
-        Currently picks 1 bit depth.'''
+        """
+        Automatically selects the correct parameters for the Meteor HDC system
+        Currently picks 1 bit depth.
+        """
         self.layer_radio.setChecked(True)
         self.tif_radio.setChecked(True)
         self.bit_depth_1.setChecked(True)
 
     def process_selections(self):
-        '''Processes each of the selections in turn, setting the variables to the 
-        users choice, then calls the controll '''
+        """
+        Processes each of the selections in turn, setting the variables to the 
+        users choice, then calls the controll 
+        """
         directory = self.selected_directory
         if not directory:
             print('Please select a directory first.')
@@ -251,29 +270,35 @@ class ImageConverterView(QMainWindow):
         self.controller.convert_images()
 
     def process_file_rename_style(self, button: QPushButton):
-        '''Determines what radio button the user has checked, and sets the
+        """
+        Determines what radio button the user has checked, and sets the
         variable self.rename_style equal to the button text
         This will be the image naming style
-        Called when the user changes the radio button selection'''
+        Called when the user changes the radio button selection
+        """
         if button.text() == 'Keep Original Name Style':
             self.rename_style = None
             return
         self.rename_style = button.text()
 
     def process_file_extension(self, button: QPushButton):
-        '''Determines what radio button the user has checked, and sets the
+        """
+        Determines what radio button the user has checked, and sets the
         variable self.file_extension equal to the button text
         This will be the image extension
-        Called when the user changes the radio button selection'''
+        Called when the user changes the radio button selection
+        """
         if button.text() == 'Keep Original Extension':
             self.file_extension = None
             return
         self.file_extension = button.text()
 
     def process_x_dim(self) -> int | None:
-        '''Gets the user entry for the X resize dimension from the text entry box
+        """
+        Gets the user entry for the X resize dimension from the text entry box
         Converts the input to an int
-        If empty, passes None'''
+        If empty, passes None
+        """
         if self.x_dim_entry.text():
             x_dim = int(self.x_dim_entry.text())
         else:
@@ -281,9 +306,11 @@ class ImageConverterView(QMainWindow):
         return x_dim
 
     def process_y_dim(self) -> int | None:
-        '''Gets the user entry for the Y resize dimension from the text entry box
+        """
+        Gets the user entry for the Y resize dimension from the text entry box
         Converts the input to an int
-        If empty, passes None'''
+        If empty, passes None
+        """
         if self.y_dim_entry.text():
             y_dim = int(self.y_dim_entry.text())
         else:
@@ -291,19 +318,23 @@ class ImageConverterView(QMainWindow):
         return y_dim
 
     def process_bit_depth(self, button: QPushButton):
-        '''Determines what radio button the user has checked, and sets the
+        """
+        Determines what radio button the user has checked, and sets the
         variable self.bit_depth equal to the button text
         This will be the bit depth of the image
-        Called when the user changes the radio button selection'''
+        Called when the user changes the radio button selection
+        """
         if button.text() == 'Keep Original Bit Depth':
             self.bit_depth = None
             return
         self.bit_depth = int(button.text())
 
     def process_copy_entry(self) -> int:
-        '''Gets the user entry for the number of copies from the text entry box
+        """
+        Gets the user entry for the number of copies from the text entry box
         Converts the input to an int
-        If empty, passes None'''
+        If empty, passes None
+        """
         if self.copy_number_entry.text():
             copies = int(self.copy_number_entry.text())
         else:
@@ -312,7 +343,9 @@ class ImageConverterView(QMainWindow):
 
 
 def run_gui():
-    '''Main function to run the program'''
+    """
+    Main function to run the program
+    """
     app = QApplication([])
     window = ImageConverterView()
     window.show()
